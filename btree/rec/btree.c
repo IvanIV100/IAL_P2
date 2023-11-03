@@ -1,8 +1,8 @@
 /*
- * Binární vyhledávací strom — rekurzivní varianta
+ * Binárny vyhľadávací strom — rekurzívna varianta
  *
- * S využitím datových typů ze souboru btree.h a připravených koster funkcí
- * implementujte binární vyhledávací strom pomocí rekurze.
+ * S využitím dátových typov zo súboru btree.h a pripravených kostier funkcií
+ * implementujte binárny vyhľadávací strom pomocou rekurzie.
  */
 
 #include "../btree.h"
@@ -10,113 +10,219 @@
 #include <stdlib.h>
 
 /*
- * Inicializace stromu.
+ * Inicializácia stromu.
  *
- * Uživatel musí zajistit, že inicializace se nebude opakovaně volat nad
- * inicializovaným stromem. V opačném případě může dojít k úniku paměti (memory
- * leak). Protože neinicializovaný ukazatel má nedefinovanou hodnotu, není
- * možné toto detekovat ve funkci. 
+ * Užívateľ musí zaistiť, že incializácia sa nebude opakovane volať nad
+ * inicializovaným stromom. V opačnom prípade môže dôjsť k úniku pamäte (memory
+ * leak). Keďže neinicializovaný ukazovateľ má nedefinovanú hodnotu, nie je
+ * možné toto detegovať vo funkcii.
  */
 void bst_init(bst_node_t **tree) {
+  (*tree) = NULL;
+  return;
 }
 
 /*
- * Vyhledání uzlu v stromu.
+ * Nájdenie uzlu v strome.
  *
- * V případě úspěchu vrátí funkce hodnotu true a do proměnné value zapíše
- * hodnotu daného uzlu. V opačném případě funkce vrátí hodnotu false a proměnná
- * value zůstává nezměněná.
- * 
- * Funkci implementujte rekurzivně bez použité vlastních pomocných funkcí.
+ * V prípade úspechu vráti funkcia hodnotu true a do premennej value zapíše
+ * hodnotu daného uzlu. V opačnom prípade funckia vráti hodnotu false a premenná
+ * value ostáva nezmenená.
+ *
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
 bool bst_search(bst_node_t *tree, char key, int *value) {
+  if (tree == NULL){
+    return false;
+  } else {
+    if (tree->key == key){
+      *value = tree->value;
+      return true;
+    } else {
+      if (key < tree->key){
+        return (bst_search(tree->left, key, value));
+      } else {
+        return (bst_search(tree->right, key, value));
+      }
+    }
+  }
   return false;
 }
 
 /*
- * Vložení uzlu do stromu.
+ * Vloženie uzlu do stromu.
  *
- * Pokud uzel se zadaným klíče už ve stromu existuje, nahraďte jeho hodnotu.
- * Jinak vložte nový listový uzel.
+ * Pokiaľ uzol so zadaným kľúčom v strome už existuje, nahraďte jeho hodnotu.
+ * Inak vložte nový listový uzol.
  *
- * Výsledný strom musí splňovat podmínku vyhledávacího stromu — levý podstrom
- * uzlu obsahuje jenom menší klíče, pravý větší. 
+ * Výsledný strom musí spĺňať podmienku vyhľadávacieho stromu — ľavý podstrom
+ * uzlu obsahuje iba menšie kľúče, pravý väčšie.
  *
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
+  if ((*tree) == NULL){
+    bst_node_t *newNode = malloc(sizeof(struct bst_node));
+    if (newNode == NULL){
+      return;
+    } else {
+      newNode->key = key;
+      newNode->value = value;
+      newNode->left = NULL;
+      newNode->right = NULL;
+      (*tree) = newNode;
+    }
+  } else {
+    if (key < (*tree)->key){
+      (bst_insert(&(*tree)->left, key, value));
+    } else {
+      if ((*tree)->key < key){
+        (bst_insert(&(*tree)->right, key, value));
+      } else {
+        (*tree)->value = value;
+      }
+    }
+  }
+
 }
 
 /*
- * Pomocná funkce která nahradí uzel nejpravějším potomkem.
- * 
- * Klíč a hodnota uzlu target budou nahrazeny klíčem a hodnotou nejpravějšího
- * uzlu podstromu tree. Nejpravější potomek bude odstraněný. Funkce korektně
- * uvolní všechny alokované zdroje odstraněného uzlu.
+ * Pomocná funkcia ktorá nahradí uzol najpravejším potomkom.
  *
- * Funkce předpokládá, že hodnota tree není NULL.
- * 
- * Tato pomocná funkce bude využitá při implementaci funkce bst_delete.
+ * Kľúč a hodnota uzlu target budú nahradené kľúčom a hodnotou najpravejšieho
+ * uzlu podstromu tree. Najpravejší potomok bude odstránený. Funkcia korektne
+ * uvoľní všetky alokované zdroje odstráneného uzlu.
  *
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
+ * Funkcia predpokladá že hodnota tree nie je NULL.
+ *
+ * Táto pomocná funkcia bude využitá pri implementácii funkcie bst_delete.
+ *
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
-}
+  bst_node_t *currentTree = (*tree);
+  bst_node_t *nextTree = currentTree->right;
+    if (nextTree == NULL){
+      target->key = currentTree->key;
+      target->value = currentTree->value;
+    } else if (nextTree != NULL && nextTree->right == NULL){//checks if nextTree is rmost
+      target->key = nextTree->key; //sets values
+      target->value = nextTree->value;
+      if (nextTree->left != NULL){ //checks if rmost has l. child
+        currentTree->right = nextTree->left; //connnect it insted of deleted rmost
+      } else {
+        currentTree->right = NULL;  
+      }
+      free(nextTree);
+    } else {
+      bst_replace_by_rightmost(target, &nextTree);
+    }
+  }
+  
+
 
 /*
- * Odstranění uzlu ze stromu.
+ * Odstránenie uzlu v strome.
  *
- * Pokud uzel se zadaným klíčem neexistuje, funkce nic nedělá.
- * Pokud má odstraněný uzel jeden podstrom, zdědí ho rodič odstraněného uzlu.
- * Pokud má odstraněný uzel oba podstromy, je nahrazený nejpravějším uzlem
- * levého podstromu. Nejpravější uzel nemusí být listem.
- * 
- * Funkce korektně uvolní všechny alokované zdroje odstraněného uzlu.
- * 
- * Funkci implementujte rekurzivně pomocí bst_replace_by_rightmost a bez
- * použití vlastních pomocných funkcí.
+ * Pokiaľ uzol so zadaným kľúčom neexistuje, funkcia nič nerobí.
+ * Pokiaľ má odstránený uzol jeden podstrom, zdedí ho otec odstráneného uzla.
+ * Pokiaľ má odstránený uzol oba podstromy, je nahradený najpravejším uzlom
+ * ľavého podstromu. Najpravejší uzol nemusí byť listom!
+ * Funkcia korektne uvoľní všetky alokované zdroje odstráneného uzlu.
+ *
+ * Funkciu implementujte rekurzívne pomocou bst_replace_by_rightmost a bez
+ * použitia vlastných pomocných funkcií.
  */
 void bst_delete(bst_node_t **tree, char key) {
+  if ((*tree) != NULL){
+    if ((*tree)->key > key){
+      bst_delete(&(*tree)->left, key);
+    } else {
+    if ((*tree)->key < key){
+      bst_delete(&(*tree)->right, key);
+    } else {
+      if ((*tree)->left == NULL && (*tree)->right == NULL){
+        free((*tree));
+        (*tree) = NULL;
+      }  else { 
+        if ((*tree)->left != NULL && (*tree)->right != NULL){
+          bst_node_t *tmp = (*tree);
+          bst_replace_by_rightmost(tmp, &(*tree)->left);
+        } else {
+          bst_node_t *tmp2;
+          if ((*tree)->left == NULL){
+            tmp2 = (*tree);
+            (*tree) = (*tree)->right;
+          } else {
+            tmp2 = (*tree);
+            (*tree) = (*tree)->left;
+          }
+          free(tmp2);
+          }
+        } 
+      }    
+    }
+  }
 }
 
 /*
- * Zrušení celého stromu.
- * 
- * Po zrušení se celý strom bude nacházet ve stejném stavu jako po 
- * inicializaci. Funkce korektně uvolní všechny alokované zdroje rušených 
- * uzlů.
- * 
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
+ * Zrušenie celého stromu.
+ *
+ * Po zrušení sa celý strom bude nachádzať v rovnakom stave ako po
+ * inicializácii. Funkcia korektne uvoľní všetky alokované zdroje rušených
+ * uzlov.
+ *
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
 void bst_dispose(bst_node_t **tree) {
+  if ((*tree) != NULL){
+    bst_dispose(&(*tree)->left);
+    bst_dispose(&(*tree)->right);
+    free(*tree);
+    (*tree) = NULL;
+  }
+} 
+
+/*
+ * Preorder prechod stromom.
+ *
+ * Pre aktuálne spracovávaný uzol nad ním zavolajte funkciu bst_print_node.
+ *
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
+ */
+void bst_preorder(bst_node_t *tree) {
+  if (tree != NULL){
+    bst_print_node(tree);
+    bst_preorder(tree->left); 
+    bst_preorder(tree->right);
+  }
 }
 
 /*
- * Preorder průchod stromem.
+ * Inorder prechod stromom.
  *
- * Pro aktuálně zpracovávaný uzel zavolejte funkci bst_add_node_to_items.
+ * Pre aktuálne spracovávaný uzol nad ním zavolajte funkciu bst_print_node.
  *
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
-void bst_preorder(bst_node_t *tree, bst_items_t *items) {
+void bst_inorder(bst_node_t *tree) {
+  if (tree != NULL){
+    bst_inorder(tree->left);
+    bst_print_node(tree);
+    bst_inorder(tree->right);
+  }
 }
-
 /*
- * Inorder průchod stromem.
+ * Postorder prechod stromom.
  *
- * Pro aktuálně zpracovávaný uzel zavolejte funkci bst_add_node_to_items.
+ * Pre aktuálne spracovávaný uzol nad ním zavolajte funkciu bst_print_node.
  *
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
+ * Funkciu implementujte rekurzívne bez použitia vlastných pomocných funkcií.
  */
-void bst_inorder(bst_node_t *tree, bst_items_t *items) {
-}
-
-/*
- * Postorder průchod stromem.
- *
- * Pro aktuálně zpracovávaný uzel zavolejte funkci bst_add_node_to_items.
- *
- * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
- */
-void bst_postorder(bst_node_t *tree, bst_items_t *items) {
+void bst_postorder(bst_node_t *tree) {
+  if (tree != NULL){
+    bst_postorder(tree->left);
+    bst_postorder(tree->right);
+    bst_print_node(tree);
+  }
 }

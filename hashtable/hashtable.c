@@ -1,11 +1,11 @@
 /*
- * Tabulka s rozptýlenými položkami
+ * Tabuľka s rozptýlenými položkami
  *
- * S využitím datových typů ze souboru hashtable.h a připravených koster
- * funkcí implementujte tabulku s rozptýlenými položkami s explicitně
- * zretězenými synonymy.
+ * S využitím dátových typov zo súboru hashtable.h a pripravených kostier
+ * funkcií implementujte tabuľku s rozptýlenými položkami s explicitne
+ * zreťazenými synonymami.
  *
- * Při implementaci uvažujte velikost tabulky HT_SIZE.
+ * Pri implementácii uvažujte veľkosť tabuľky HT_SIZE.
  */
 
 #include "hashtable.h"
@@ -15,9 +15,9 @@
 int HT_SIZE = MAX_HT_SIZE;
 
 /*
- * Rozptylovací funkce která přidělí zadanému klíči index z intervalu
- * <0,HT_SIZE-1>. Ideální rozptylovací funkce by měla rozprostírat klíče
- * rovnoměrně po všech indexech. Zamyslete sa nad kvalitou zvolené funkce.
+ * Rozptyľovacia funkcia ktorá pridelí zadanému kľúču index z intervalu
+ * <0,HT_SIZE-1>. Ideálna rozptyľovacia funkcia by mala rozprestrieť kľúče
+ * rovnomerne po všetkých indexoch. Zamyslite sa nad kvalitou zvolenej funkcie.
  */
 int get_hash(char *key) {
   int result = 1;
@@ -29,60 +29,153 @@ int get_hash(char *key) {
 }
 
 /*
- * Inicializace tabulky — zavolá sa před prvním použitím tabulky.
+ * Inicializácia tabuľky — zavolá sa pred prvým použitím tabuľky.
  */
 void ht_init(ht_table_t *table) {
+  if (!table) return;
+
+  for (int i = 0; i < HT_SIZE; i++){
+    (*table)[i] = NULL;
+  }
+
+
 }
 
 /*
- * Vyhledání prvku v tabulce.
+ * Vyhľadanie prvku v tabuľke.
  *
- * V případě úspěchu vrací ukazatel na nalezený prvek; v opačném případě vrací
+ * V prípade úspechu vráti ukazovateľ na nájdený prvok; v opačnom prípade vráti
  * hodnotu NULL.
  */
 ht_item_t *ht_search(ht_table_t *table, char *key) {
-  return NULL;
+  if (!table || !key) return NULL;
+
+  int index = get_hash(key);
+
+  if (table == NULL){
+    return NULL;
+  }
+
+  for (ht_item_t *tmp = (*table)[index]; tmp != NULL; tmp = tmp->next) {
+    if (strcmp(tmp->key, key) == 0){
+      return tmp;
+    }
+  }
+return NULL;
 }
 
 /*
- * Vložení nového prvku do tabulky.
+ * Vloženie nového prvku do tabuľky.
  *
- * Pokud prvek s daným klíčem už v tabulce existuje, nahraďte jeho hodnotu.
+ * Pokiaľ prvok s daným kľúčom už v tabuľke existuje, nahraďte jeho hodnotu.
  *
- * Při implementaci využijte funkci ht_search. Pri vkládání prvku do seznamu
- * synonym zvolte nejefektivnější možnost a vložte prvek na začátek seznamu.
+ * Pri implementácii využite funkciu ht_search. Pri vkladaní prvku do zoznamu
+ * synonym zvoľte najefektívnejšiu možnosť a vložte prvok na začiatok zoznamu.
  */
 void ht_insert(ht_table_t *table, char *key, float value) {
+  if (!table || !key){
+    return;
+  } 
+
+  ht_item_t *new = malloc(sizeof(ht_item_t));
+  if(!new){
+    return;
+  }
+
+  new->key = key;
+  new->value = value; 
+
+  int index = get_hash(key);
+  new->next = (*table)[index];
+  (*table)[index] = new;
 }
 
 /*
- * Získání hodnoty z tabulky.
+ * Získanie hodnoty z tabuľky.
  *
- * V případě úspěchu vrací funkce ukazatel na hodnotu prvku, v opačném
- * případě hodnotu NULL.
+ * V prípade úspechu vráti funkcia ukazovateľ na hodnotu prvku, v opačnom
+ * prípade hodnotu NULL.
  *
- * Při implementaci využijte funkci ht_search.
+ * Pri implementácii využite funkciu ht_search.
  */
 float *ht_get(ht_table_t *table, char *key) {
+  if (!table || !key){
+    return NULL;
+  }
+
+  ht_item_t *tmp = ht_search(table, key);
+
+  if (tmp) {
+    return &tmp->value;
+  }
+  
   return NULL;
 }
 
 /*
- * Smazání prvku z tabulky.
+ * Zmazanie prvku z tabuľky.
  *
- * Funkce korektně uvolní všechny alokované zdroje přiřazené k danému prvku.
- * Pokud prvek neexistuje, funkce nedělá nic.
+ * Funkcia korektne uvoľní všetky alokované zdroje priradené k danému prvku.
+ * Pokiaľ prvok neexistuje, nerobte nič.
  *
- * Při implementaci NEPOUŽÍVEJTE funkci ht_search.
+ * Pri implementácii NEVYUŽÍVAJTE funkciu ht_search.
  */
 void ht_delete(ht_table_t *table, char *key) {
+  if (!table || !key){
+    return;
+  }
+
+  ht_item_t *prev = NULL;
+
+  int index = get_hash(key);
+  if (!table[index]){
+    return;
+  }
+
+  ht_item_t *tmp = (*table)[index];
+
+  while (tmp && strcmp(tmp->key, key) != 0){
+    prev = tmp;
+    tmp = tmp->next;
+  }
+
+  if (tmp == NULL) { 
+    return;
+  } else if (tmp == (*table)[index]){
+    (*table)[index] = tmp->next; 
+  } else {
+    prev->next = tmp->next;
+  }
+
+  free(tmp);
+  
 }
 
 /*
- * Smazání všech prvků z tabulky.
+ * Zmazanie všetkých prvkov z tabuľky.
  *
- * Funkce korektně uvolní všechny alokované zdroje a uvede tabulku do stavu po 
- * inicializaci.
+ * Funkcia korektne uvoľní všetky alokované zdroje a uvedie tabuľku do stavu po
+ * inicializácii.
  */
 void ht_delete_all(ht_table_t *table) {
+
+  if (!table){
+    return;
+  }
+
+  ht_item_t *tmp;
+  ht_item_t *next;
+
+  for (int i = 0; i < HT_SIZE; i++){
+    tmp = (*table)[i];
+
+    if (tmp){
+      while (tmp != NULL){
+        next = tmp->next;
+        free(tmp);
+        tmp = next;
+      }
+      (*table)[i] = NULL;
+    }
+  }
 }
