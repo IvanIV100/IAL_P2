@@ -169,13 +169,28 @@ void bst_delete(bst_node_t **tree, char key) {
   if ((*tree) == NULL) return;
 
   if (left->key == key || right->key == key) {
+
     if (right->key == key){
-      if(right->left == NULL){
+
+      if (right->left == NULL){
         (*tree)->right = right->right;
         free(right);
         return;
       } else {
-        bst_replace_by_rightmost((*tree), &(*tree)->left);
+        bst_replace_by_rightmost(right, &right->left);
+        return;
+      }
+    } else if (left->key == key) {
+      if (left->right == NULL){
+        if (left->left != NULL){
+          (*tree)->left = left->left;
+        } else {
+          (*tree)->left = NULL;
+        }
+        free(left);
+        return;
+      } else {
+        bst_replace_by_rightmost((*tree)->left, &left);
         return;
       }
     }
@@ -186,7 +201,7 @@ void bst_delete(bst_node_t **tree, char key) {
         bst_delete(&(*tree)->right, key);
     }
   }
-}
+} 
 
 /*
  * Zrušení celého stromu.
