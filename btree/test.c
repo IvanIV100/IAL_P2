@@ -57,15 +57,18 @@ bst_insert(&test_tree, 'H', 1);
 bst_print_tree(test_tree);
 bst_insert(&test_tree, 'H', 8);
 bst_print_tree(test_tree);
+printf("done\n");
 ENDTEST
 
 TEST(test_tree_insert_many, "Insert many values")
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 bst_print_tree(test_tree);
+printf("done\n");
 ENDTEST
 
 TEST(test_tree_search, "Search for an item deeper in the tree (A)")
+printf("start\n");
 bst_init(&test_tree);
 bst_insert_many(&test_tree, base_keys, base_values, base_data_count);
 int result;
