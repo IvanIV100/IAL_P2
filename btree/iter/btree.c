@@ -25,7 +25,6 @@ void bst_init(bst_node_t **tree) {
   (*tree)->value = 0; //check if 0 is ok (maybe NULL
   (*tree)->left = NULL;
   (*tree)->right = NULL;
-
 }
 
 /*
@@ -38,6 +37,28 @@ void bst_init(bst_node_t **tree) {
  * Funkci implementujte iterativně bez použité vlastních pomocných funkcí.
  */
 bool bst_search(bst_node_t *tree, char key, int *value) {
+  bst_node_t **tmp = &tree;
+  stack_bst_t stack;
+  stack_bst_init(&stack);
+  bool run = true;
+
+  while (run){
+    if ((*tmp) == NULL){
+      run = false;
+    } else {
+      if ((*tmp)->key > key){
+        tmp = &(*tmp)->right;
+      } else if ((*tmp)->key < key){
+        tmp = &(*tmp)->left;
+      } else {
+        *value = (*tmp)->value;
+        run = false;
+        return true;
+      }
+    }
+  }
+
+
   return false;
 }
 
@@ -53,57 +74,34 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
  * Funkci implementujte iterativně bez použití vlastních pomocných funkcí.
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
-  if((*tree)->key == '\0'){
-    (*tree)->key = key;
-    (*tree)->value = value;
-    (*tree)->left = NULL;
-    (*tree)->right = NULL;
-  } else {
 
-    stack_bst_t *bst;
-    stack_bst_init(bst);
+  bool run = true;
+  bst_node_t **tmp = &(*tree);
 
-    while(true){
-      if ((*tree)->key == key){
-        (*tree)->value = value;
-        return;
-      } else {
-        if ((*tree)->key > key){
-          if ((*tree)->left == NULL){
-            bst_node_t *new = malloc(sizeof(struct bst_node));
-            new->key = key;
-            new->value = value;
-            new->left = NULL;
-            new->right = NULL;
-            (*tree)->left = new;
-          } else {
-            bst_node_t *tmp;
-            bst_init(&tmp);
-            tmp = (*tree)->left;
-            stack_bst_push(bst, (*tree));
-            (*tree) = tmp;
-          }
-        } else if ((*tree)->key < key){
-          if ((*tree)->right == NULL){
-            bst_node_t *new = malloc(sizeof(struct bst_node));
-            new->key = key;
-            new->value = value;
-            new->left = NULL;
-            new->right = NULL;
-            (*tree)->right = new;
-          } else {
-            bst_node_t *tmp;
-            bst_init(&tmp);
-            tmp = (*tree)->right;
-            stack_bst_push(bst, (*tree));
-            (*tree) = tmp;
-          }
-        }
-      }
-      
-    }
-    return;
+  if ((*tmp)->key == '\0'){
+    (*tmp)->key = key;
+    (*tmp)->value = value;
+    run = false;
   }
+
+  while(run){
+    if ((*tmp) == NULL){
+      bst_init(&(*tmp));
+      (*tmp)->key = key;
+      (*tmp)->value = value;
+      run = false;
+    } else {
+      if ((*tmp)->key < key){
+        tmp = &(*tmp)->right;
+      } else if ((*tmp)->key > key){
+        tmp = &(*tmp)->left;
+      } else {
+        (*tmp)->value = value;
+        run = false;
+      }
+    }
+  }
+  return;
 }
 
 /*
@@ -120,6 +118,29 @@ void bst_insert(bst_node_t **tree, char key, int value) {
  * Funkci implementujte iterativně bez použití vlastních pomocných funkcí.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
+
+ if ((*tree) == NULL) return;
+  
+  bst_node_t **curent = &(*tree);
+  bst_node_t **parent = NULL;
+  parent = &(*curent);
+  bool run = true;
+  
+  
+  while (run){   
+    if ((*curent)->right == NULL){
+      if ((*curent)->left != NULL){
+        (*parent)->right = (*curent)->left;
+      }
+      target->key = (*curent)->key;
+      target->value = (*curent)->value;
+      free((*curent));
+      (*curent) = NULL;
+    } else {
+      parent = &(*curent);
+      curent = &(*curent)->right;
+    }
+  }
 }
 
 /*
@@ -136,6 +157,40 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  * použití vlastních pomocných funkcí.
  */
 void bst_delete(bst_node_t **tree, char key) {
+  bst_node_t **parent =NULL;
+  bst_node_t **current = &(*tree);
+  bool run = true;
+
+  
+
+  while(run){
+    if ((*current) == NULL) return;
+    if ((*current)->key == key){
+      if ((*current)->left != NULL && (*current)->right != NULL){
+        bst_replace_by_rightmost((*current), &(*current)->left);
+        (*current)->right = (*parent)->right->right;
+        (*parent)->right = (*current);
+        run = false;
+      } else if ((*current)->left != NULL && (*current)->right == NULL){
+
+      } else if ((*current)->left == NULL && (*current)->right != NULL){
+
+      } else if ((*current)->left == NULL && (*current)->right == NULL){
+
+      } 
+
+    } else {
+      if ((*current)->key < key){
+        parent = &(*current);
+        current = &(*current)->right;
+      } else if ((*current)->key > key){
+        parent = &(*current);
+        current = &(*current)->left;
+      } else {
+        run = false;
+      }
+    }
+  }
 }
 
 /*
