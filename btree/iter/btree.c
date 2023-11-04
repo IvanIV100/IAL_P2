@@ -20,6 +20,12 @@
  * možné toto detekovat ve funkci. 
  */
 void bst_init(bst_node_t **tree) {
+  (*tree) = malloc(sizeof(struct bst_node));
+  (*tree)->key ='\0';
+  (*tree)->value = 0; //check if 0 is ok (maybe NULL
+  (*tree)->left = NULL;
+  (*tree)->right = NULL;
+
 }
 
 /*
@@ -47,6 +53,57 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
  * Funkci implementujte iterativně bez použití vlastních pomocných funkcí.
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
+  if((*tree)->key == '\0'){
+    (*tree)->key = key;
+    (*tree)->value = value;
+    (*tree)->left = NULL;
+    (*tree)->right = NULL;
+  } else {
+
+    stack_bst_t *bst;
+    stack_bst_init(bst);
+
+    while(true){
+      if ((*tree)->key == key){
+        (*tree)->value = value;
+        return;
+      } else {
+        if ((*tree)->key > key){
+          if ((*tree)->left == NULL){
+            bst_node_t *new = malloc(sizeof(struct bst_node));
+            new->key = key;
+            new->value = value;
+            new->left = NULL;
+            new->right = NULL;
+            (*tree)->left = new;
+          } else {
+            bst_node_t *tmp;
+            bst_init(&tmp);
+            tmp = (*tree)->left;
+            stack_bst_push(bst, (*tree));
+            (*tree) = tmp;
+          }
+        } else if ((*tree)->key < key){
+          if ((*tree)->right == NULL){
+            bst_node_t *new = malloc(sizeof(struct bst_node));
+            new->key = key;
+            new->value = value;
+            new->left = NULL;
+            new->right = NULL;
+            (*tree)->right = new;
+          } else {
+            bst_node_t *tmp;
+            bst_init(&tmp);
+            tmp = (*tree)->right;
+            stack_bst_push(bst, (*tree));
+            (*tree) = tmp;
+          }
+        }
+      }
+      
+    }
+    return;
+  }
 }
 
 /*
@@ -92,6 +149,7 @@ void bst_delete(bst_node_t **tree, char key) {
  * vlastních pomocných funkcí.
  */
 void bst_dispose(bst_node_t **tree) {
+  
 }
 
 /*
