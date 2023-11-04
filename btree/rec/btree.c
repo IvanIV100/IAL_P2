@@ -86,18 +86,21 @@ void bst_insert(bst_node_t **tree, char key, int value) {
       } else {
         bst_node_t *newNode;
         bst_init(&newNode);
+        newNode->key = key;
+        newNode->value = value;
         (*tree)->left = newNode;
-        bst_insert(&newNode, key, value);
         return;
       }
-    } else {
+    } else if ((*tree)->key < key) {
+
       if ((*tree)->right != NULL) {
         bst_insert(&(*tree)->right, key, value);
       } else {
         bst_node_t *newNode;
         bst_init(&newNode);
+        newNode->key = key;
+        newNode->value = value;
         (*tree)->right = newNode;
-        bst_insert(&newNode, key, value);
         return;
       }
     }
@@ -158,50 +161,47 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  * použití vlastních pomocných funkcí.
  */
 void bst_delete(bst_node_t **tree, char key) {
-  if ((*tree)->left == NULL && (*tree)->right == NULL && (*tree)->key == key) {
-      free((*tree));
+  bst_node_t oldOne = **tree;
+  if ((*tree)->left->key == key && (*tree)->left->left == NULL && (*tree)->left->right == NULL){
+    free((*tree)->left);
+    (*tree)->left = NULL;
+    return;
+  } 
+  if ((*tree)->right->key == key && (*tree)->right->left == NULL && (*tree)->right->right == NULL){
+    free((*tree)->right);
+    (*tree)->right = NULL;
+    return;
+  } 
+
+  if ( (*tree)->key == key){
+    if ((*tree)->left != NULL && (*tree)->right != NULL){
+      bst_replace_by_rightmost((*tree), &(*tree)->left);
+      (*tree)->right = oldOne.right;
+      (*tree)->left = oldOne.left;
       return;
-    }
-
-  bst_node_t *left = (*tree)->left;
-  bst_node_t *right = (*tree)->right;
-
-  if ((*tree) == NULL) return;
-
-  if (left->key == key || right->key == key) {
-
-    if (right->key == key){
-
-      if (right->left == NULL){
-        (*tree)->right = right->right;
-        free(right);
+    } else if ((*tree)->left != NULL && (*tree)->right == NULL){
+        bst_replace_by_rightmost((*tree), &(*tree)->left);
         return;
-      } else {
-        bst_replace_by_rightmost(right, &right->left);
-        return;
-      }
-    } else if (left->key == key) {
-      if (left->right == NULL){
-        if (left->left != NULL){
-          (*tree)->left = left->left;
-        } else {
-          (*tree)->left = NULL;
-        }
-        free(left);
-        return;
-      } else {
-        bst_replace_by_rightmost((*tree)->left, &left);
-        return;
-      }
+    } else if ((*tree)->left == NULL && (*tree)->right != NULL){
+      (*tree) = oldOne.right;
+      return;
     }
   } else {
     if ((*tree)->key > key) {
+      if ((*tree)->left != NULL) {
         bst_delete(&(*tree)->left, key);
-    } else {
+      }
+      return;
+    } else if ((*tree)->key < key) {
+      if ((*tree)->right != NULL) {
         bst_delete(&(*tree)->right, key);
-    }
+      }
+      return;
+    } 
   }
-} 
+
+}
+
 
 /*
  * Zrušení celého stromu.
