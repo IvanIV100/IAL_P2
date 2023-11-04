@@ -124,9 +124,6 @@ void bst_insert(bst_node_t **tree, char key, int value) {
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
   if ((*tree) == NULL ) return;
   if ((*tree)->right == NULL ){
-    target->key = (*tree)->key;
-    target->value = (*tree)->value;
-    free((*tree));
     return;
   }
 
@@ -142,6 +139,7 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
     target->key = next->key;
     target->value = next->value;
     free(next);
+    (*tree)->right = NULL;
     return;
   }
 }
@@ -162,16 +160,59 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  */
 void bst_delete(bst_node_t **tree, char key) {
   bst_node_t oldOne = **tree;
-  if ((*tree)->left->key == key && (*tree)->left->left == NULL && (*tree)->left->right == NULL){
-    free((*tree)->left);
-    (*tree)->left = NULL;
-    return;
+
+  if ((*tree)->left != NULL){
+    if ((*tree)->left->key == key){
+
+      if ((*tree)->left->left == NULL && (*tree)->left->right == NULL){
+        free((*tree)->left);
+        (*tree)->left = NULL;
+        return;
+      }
+      if ((*tree)->left->left != NULL && (*tree)->left->right == NULL){
+        printf("*tree.left.key: %c\n", (*tree)->left->key);
+        free((*tree)->left);
+        printf("*tree.left.key: %c\n", (*tree)->left->key);
+        (*tree)->left = oldOne.left->left;
+        printf("*tree.left.key: %c\n", (*tree)->left->key);
+        return;
+      }
+      if ((*tree)->left->left == NULL && (*tree)->left->right != NULL){
+        free((*tree)->left);
+        (*tree)->left = oldOne.left->right;
+        return;
+      }
+    } 
   } 
-  if ((*tree)->right->key == key && (*tree)->right->left == NULL && (*tree)->right->right == NULL){
-    free((*tree)->right);
-    (*tree)->right = NULL;
-    return;
-  } 
+
+  if ((*tree)->right != NULL){
+    if ((*tree)->right->key == key){
+
+      if ((*tree)->right->left == NULL && (*tree)->right->right == NULL){
+        free((*tree)->right);
+        (*tree)->right = NULL;
+        return;
+      }
+      if ((*tree)->right->left != NULL && (*tree)->right->right == NULL){
+        bst_replace_by_rightmost((*tree)->right, &(*tree)->right->left);
+        free((*tree)->right);
+        (*tree)->right->left = oldOne.right->left; 
+        return;
+      }
+      if ((*tree)->right->left == NULL && (*tree)->right->right != NULL){
+        free((*tree)->right);
+        (*tree)->right = oldOne.right->right;
+        return;
+      }
+      if ((*tree)->right->left != NULL && (*tree)->right->right != NULL){
+        bst_replace_by_rightmost((*tree)->right, &(*tree)->right->left);
+        (*tree)->right->left = oldOne.right->left;
+        (*tree)->right->right = oldOne.right->right;
+        
+        return;
+      }
+    } 
+  }
 
   if ( (*tree)->key == key){
     if ((*tree)->left != NULL && (*tree)->right != NULL){
@@ -213,16 +254,29 @@ void bst_delete(bst_node_t **tree, char key) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_dispose(bst_node_t **tree) {
-    if ((*tree)->left == NULL && (*tree)->right == NULL) {
-      bst_replace_by_rightmost((*tree), &(*tree));
-      return;
-    }
-    if ((*tree)->right == NULL){
+  if ((*tree) == NULL) return;
+  if ((*tree)->left != NULL && (*tree)->right != NULL){
+      bst_dispose(&(*tree)->right);
       bst_dispose(&(*tree)->left);
-      return;
-    } else {
-      bst_replace_by_rightmost((*tree), &(*tree)->right);
+      
     }
+  
+  
+  if ((*tree)->left != NULL && (*tree)->right == NULL){
+    bst_dispose(&(*tree)->left);
+    (*tree)->left = NULL;
+  }
+  if ((*tree)->left == NULL && (*tree)->right != NULL){
+    bst_dispose(&(*tree)->right);
+    (*tree)->right = NULL;
+  }
+  if ((*tree)->left == NULL && (*tree)->right == NULL){
+    free((*tree));
+    (*tree) = NULL;
+    return;
+  }
+  
+  return;
 }
 
 /*
