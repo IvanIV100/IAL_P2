@@ -154,59 +154,80 @@ void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
  * použití vlastních pomocných funkcí.
  */
 void bst_delete(bst_node_t **tree, char key) {
-  bst_node_t **parent =NULL;
-  bst_node_t **current = &(*tree);
+  bst_node_t *parent =NULL;
+  bst_node_t *current = *tree;
+  //bool run = bst_search(*tree, key, NULL);
   bool run = true;
 
+  if (current == NULL) {
+    run = false;
+    return;
+  }
+  
   while(run){
-    if ((*current)->key == key){
-      if ((*current)->left != NULL && (*current)->right != NULL){
-        bst_replace_by_rightmost((*current), &(*current)->left);
-        
-        (*current)->right = (*parent)->right->right;
-        (*current)->left = (*parent)->right->left;
 
-        (*parent)->right = (*current);
-        
+    if (current->key == key){
+      if (current->left != NULL && current->right != NULL){
+        bst_replace_by_rightmost((current), &(current)->left);
+        current->right = (parent)->right->right;
+        (current)->left = (parent)->right->left;
+        (parent)->right = (current);
         run = false;
-
-      } else if ((*current)->left != NULL && (*current)->right == NULL){
-        if ((*parent) != NULL){
-          (*parent)= (*current)->left;
-        }
-        free((*current));
-        (*current) = NULL;
-        run = false;
-
-      } else if ((*current)->left == NULL && (*current)->right != NULL){
-        if ((*parent) != NULL){
-          (*parent)->right = (*current)->right;
-        }
-        free((*current));
-        (*current) = NULL;
-        run = false;
-        
-      } else if ((*current)->left == NULL && (*current)->right == NULL){
-        if ((*parent) != NULL){
-          (*parent)->right = NULL;
-        }
-
-        free((*current));
-        (*current) = NULL;
-        run = false;
+        return;
 
       } 
-    } else {
-      if ((*current) == NULL){
+
+      if ((current)->left == NULL && (current)->right == NULL){
+        if ((parent) != NULL){
+          if ((parent)->left->key == (current)->key){
+            (parent)->left = NULL;
+          } else {
+            (parent)->right = NULL;
+          }
+        }
+        free(current);
+        (current) = NULL;
         run = false;
         return;
       }
-      if ((*current)->key < key){
-        parent = &(*current);
-        current = &(*current)->right;
-      } else if ((*current)->key > key){
-        parent = &(*current);
-        current = &(*current)->left;
+      if ((current)->left == NULL && (current)->right != NULL) {
+        if ((parent) != NULL){
+          if ((parent)->left == (current)){
+            (parent)->left = (current)->right;
+          } else {
+            (parent)->right = (current)->right;
+
+          }
+        } 
+        free(current);
+        (current) = NULL;
+        run = false;
+        return;
+      }
+      if ((current)->left != NULL && (current)->right == NULL) {
+        if ((parent) != NULL){
+          if ((parent)->left->key == (current)->key){
+            (parent)->left = (current)->left;
+          } else {
+            (parent)->right = (current)->left;
+
+          }
+        } 
+        free(current);
+        (current) = NULL;
+        run = false;
+        return;
+      }
+    } else {
+      if ((current)->key < key){
+        parent = (current);
+        current = (current)->right;
+      } else if ((current)->key > key){
+        parent = (current);
+        current = (current)->left;
+      } else {
+        run = false;
+        return;
       }
     }
   }
