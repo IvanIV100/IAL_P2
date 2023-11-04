@@ -118,24 +118,21 @@ void bst_insert(bst_node_t **tree, char key, int value) {
  * Funkci implementujte iterativně bez použití vlastních pomocných funkcí.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
-
- if ((*tree) == NULL) return;
-  
   bst_node_t **curent = &(*tree);
   bst_node_t **parent = NULL;
-  parent = &(*curent);
   bool run = true;
   
   
   while (run){   
     if ((*curent)->right == NULL){
-      if ((*curent)->left != NULL){
+      if ((*curent)->left != NULL && (*parent) != NULL){
         (*parent)->right = (*curent)->left;
       }
       target->key = (*curent)->key;
       target->value = (*curent)->value;
       free((*curent));
       (*curent) = NULL;
+      run = false;
     } else {
       parent = &(*curent);
       curent = &(*curent)->right;
@@ -161,33 +158,55 @@ void bst_delete(bst_node_t **tree, char key) {
   bst_node_t **current = &(*tree);
   bool run = true;
 
-  
-
   while(run){
-    if ((*current) == NULL) return;
     if ((*current)->key == key){
       if ((*current)->left != NULL && (*current)->right != NULL){
         bst_replace_by_rightmost((*current), &(*current)->left);
+        
         (*current)->right = (*parent)->right->right;
+        (*current)->left = (*parent)->right->left;
+
         (*parent)->right = (*current);
+        
         run = false;
+
       } else if ((*current)->left != NULL && (*current)->right == NULL){
+        if ((*parent) != NULL){
+          (*parent)= (*current)->left;
+        }
+        free((*current));
+        (*current) = NULL;
+        run = false;
 
       } else if ((*current)->left == NULL && (*current)->right != NULL){
-
+        if ((*parent) != NULL){
+          (*parent)->right = (*current)->right;
+        }
+        free((*current));
+        (*current) = NULL;
+        run = false;
+        
       } else if ((*current)->left == NULL && (*current)->right == NULL){
+        if ((*parent) != NULL){
+          (*parent)->right = NULL;
+        }
+
+        free((*current));
+        (*current) = NULL;
+        run = false;
 
       } 
-
     } else {
+      if ((*current) == NULL){
+        run = false;
+        return;
+      }
       if ((*current)->key < key){
         parent = &(*current);
         current = &(*current)->right;
       } else if ((*current)->key > key){
         parent = &(*current);
         current = &(*current)->left;
-      } else {
-        run = false;
       }
     }
   }
