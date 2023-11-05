@@ -47,4 +47,21 @@ void letter_count(bst_node_t **tree, char *input) {
  * Pro implementaci si můžete v tomto souboru nadefinovat vlastní pomocné funkce. Není nutné, aby funkce fungovala *in situ* (in-place).
 */
 void bst_balance(bst_node_t **tree) {
+    bst_items_t *items = malloc(sizeof(struct bst_items));
+    bst_node_t **new_tree = malloc(sizeof(struct bst_node));
+    bst_init(new_tree);
+    bst_node_t *node;
+    bst_inorder(*tree, items);
+    
+    int mid_index = items->size / 2;
+    node = items->nodes[mid_index];
+    bst_insert(new_tree, node->key, node->value);
+    int current = 0;
+    while (current < items->size) { //-1?
+        if (current != mid_index) {
+            bst_insert(tree, items->nodes[current]->key, items->nodes[current]->value);
+        }
+        current++;
+    }
+
 }
