@@ -122,7 +122,7 @@ void bst_insert(bst_node_t **tree, char key, int value) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_replace_by_rightmost(bst_node_t *target, bst_node_t **tree) {
-  if ((*tree) == NULL) return; // ist root the right most child
+  if ((*tree) == NULL || (*tree)->right == NULL) return; // ist root the right most child
   
 
 
