@@ -358,18 +358,20 @@ void bst_inorder(bst_node_t *tree, bst_items_t *items) {
   if (tree == NULL) return;
   bst_leftmost_inorder(tree, &stack);
   current = stack_bst_pop(&stack);
+  bst_add_node_to_items(current, items);
   
   while(run){
-    bst_add_node_to_items(current, items);
     if (current->right != NULL){
       bst_leftmost_inorder(current->right, &stack);
       current = stack_bst_pop(&stack);
+      bst_add_node_to_items(current, items);
     } else {
-      if (stack_bst_empty(&stack)){
+      if (stack_bst_empty(&stack)){ 
         run = false;
-      } else {
-        current = stack_bst_pop(&stack);
+        return;
       }
+      current = stack_bst_pop(&stack);
+      bst_add_node_to_items(current, items);
     }
   }
 
