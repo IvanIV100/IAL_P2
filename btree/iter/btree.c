@@ -36,24 +36,26 @@ void bst_init(bst_node_t **tree) {
  * 
  * Funkci implementujte iterativně bez použité vlastních pomocných funkcí.
  */
-bool bst_search(bst_node_t *tree, char key, int *value) {
+bool bst_search(bst_node_t *tree, char key, int *value) { 
   bst_node_t **tmp = &tree;
-  stack_bst_t stack;
-  stack_bst_init(&stack);
   bool run = true;
 
   while (run){
     if ((*tmp) == NULL){
       run = false;
+      return false;
     } else {
       if ((*tmp)->key > key){
         tmp = &(*tmp)->right;
       } else if ((*tmp)->key < key){
         tmp = &(*tmp)->left;
-      } else {
+      } else if ((*tmp)->key == key){
         *value = (*tmp)->value;
         run = false;
         return true;
+      } else{
+        run = false;
+        return false;
       }
     }
   }
