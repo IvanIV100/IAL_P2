@@ -18,11 +18,7 @@
  * možné toto detekovat ve funkci. 
  */
 void bst_init(bst_node_t **tree) {
-  (*tree) = malloc(sizeof(struct bst_node));
-  (*tree)->key ='\0';
-  (*tree)->value = 0; //check if 0 is ok (maybe NULL
-  (*tree)->left = NULL;
-  (*tree)->right = NULL;
+  (*tree) = NULL;
 
   return;
 }
@@ -37,26 +33,24 @@ void bst_init(bst_node_t **tree) {
  * Funkci implementujte rekurzivně bez použité vlastních pomocných funkcí.
  */
 bool bst_search(bst_node_t *tree, char key, int *value) {
- if (tree->key == key) {
-    value = &(tree)->value;
-    return true;
-  } else if (tree->key > key) {
-    if (tree->left != NULL) {
-      bst_search(tree->left, key, value);
-    } else {
-      return false;
-    }
-  } else if (tree->key < key) {
-    if (tree->right != NULL) {
-      bst_search(tree->right, key, value);
-    } else {
-
-      return false;
-    }
-  } else {
-    return false;
+  bool retVal = false;
+  if (tree == NULL) return false;
+  if (tree->key == key) {
+    *value = (tree)->value;
+    retVal = true;
+    return retVal;
   }
-  return false;
+  if (tree->key > key) {
+    if (tree->left != NULL) {
+      retVal = bst_search(tree->left, key, value);
+
+    } 
+  } else if (tree->key > key) {
+    if (tree->right != NULL) {
+      retVal =bst_search(tree->right, key, value);
+    }
+  } 
+  return retVal;
 }
 
 /*
@@ -71,9 +65,13 @@ bool bst_search(bst_node_t *tree, char key, int *value) {
  * Funkci implementujte rekurzivně bez použití vlastních pomocných funkcí.
  */
 void bst_insert(bst_node_t **tree, char key, int value) {
-  if ((*tree)->key == '\0') {
-    (*tree)->key = key;
-    (*tree)->value = value;
+  if ((*tree) == NULL ) {
+    bst_node_t *newNode = malloc(sizeof(struct bst_node));
+    newNode->key = key;
+    newNode->value = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    (*tree) = newNode;
     return;
   }
   if ((*tree)->key == key) {
@@ -84,8 +82,7 @@ void bst_insert(bst_node_t **tree, char key, int value) {
       if ((*tree)->left != NULL) {
         bst_insert(&(*tree)->left, key, value);
       } else {
-        bst_node_t *newNode;
-        bst_init(&newNode);
+        bst_node_t *newNode = malloc(sizeof(struct bst_node));
         newNode->key = key;
         newNode->value = value;
         (*tree)->left = newNode;
@@ -96,8 +93,7 @@ void bst_insert(bst_node_t **tree, char key, int value) {
       if ((*tree)->right != NULL) {
         bst_insert(&(*tree)->right, key, value);
       } else {
-        bst_node_t *newNode;
-        bst_init(&newNode);
+        bst_node_t *newNode = malloc(sizeof(struct bst_node));
         newNode->key = key;
         newNode->value = value;
         (*tree)->right = newNode;
@@ -170,11 +166,8 @@ void bst_delete(bst_node_t **tree, char key) {
         return;
       }
       if ((*tree)->left->left != NULL && (*tree)->left->right == NULL){
-        printf("*tree.left.key: %c\n", (*tree)->left->key);
         free((*tree)->left);
-        printf("*tree.left.key: %c\n", (*tree)->left->key);
         (*tree)->left = oldOne.left->left;
-        printf("*tree.left.key: %c\n", (*tree)->left->key);
         return;
       }
       if ((*tree)->left->left == NULL && (*tree)->left->right != NULL){
