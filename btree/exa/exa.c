@@ -32,6 +32,31 @@
  * Pro implementaci si můžete v tomto souboru nadefinovat vlastní pomocné funkce.
 */
 void letter_count(bst_node_t **tree, char *input) {
+    int curent = 0;
+
+    while (*input != '\0') {
+        if (*input >= 'a' && *input  <= 'z'){
+            
+            if (bst_search(*tree, *input, &curent)){
+                bst_insert(tree, *input, (curent) + 1);
+            } else {
+                bst_insert(tree, *input, 1);
+            }
+        } else if (*input >= 'A' && *input <= 'Z') {
+            if (bst_search(*tree, *input+32, &curent)){
+                bst_insert(tree, *input+32, (curent) + 1);
+            } else {
+                bst_insert(tree, *input+32, 1);
+            }
+        } else if (*input == ' ' || *input == '_') {
+            if (bst_search(*tree, *input, &curent)){
+                bst_insert(tree, *input, (curent) + 1);
+            } else {
+                bst_insert(tree, *input, 1);
+            }
+        }
+        input++;
+    }
 }
 
 
@@ -48,20 +73,26 @@ void letter_count(bst_node_t **tree, char *input) {
 */
 void bst_balance(bst_node_t **tree) {
     bst_items_t *items = malloc(sizeof(struct bst_items));
-    bst_node_t **new_tree = malloc(sizeof(struct bst_node));
-    bst_init(new_tree);
     bst_node_t *node;
-    bst_inorder(*tree, items);
     
-    int mid_index = items->size / 2;
-    node = items->nodes[mid_index];
-    bst_insert(new_tree, node->key, node->value);
-    int current = 0;
-    while (current < items->size) { //-1?
-        if (current != mid_index) {
-            bst_insert(tree, items->nodes[current]->key, items->nodes[current]->value);
-        }
-        current++;
-    }
+    //bst_init(new_tree)
+    bst_inorder(*tree, items);
+    bst_dispose(tree);
+    node = (*items).nodes[(*items).size / 2];
+    printf("%c", (node)->key);
+
+
+    
+    // int mid_index = items->size / 2;
+    // node = items->nodes[mid_index];
+    // printf("%c", node->key);
+    // bst_insert(new_tree, node->key, node->value);
+    // int current = 0;
+    // while (current < items->size) { //-1?
+    //     if (current != mid_index) {
+    //         bst_insert(tree, items->nodes[current]->key, items->nodes[current]->value);
+    //     }
+    //     current++;
+    // }
 
 }
