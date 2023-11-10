@@ -54,7 +54,7 @@ ht_item_t *ht_search(ht_table_t *table, char *key) {
 
   tmp = &(*table)[hashCode];
   while(*tmp != NULL){
-    if (!strcmp((*tmp)->key, key) == 0) return *tmp;
+    if (strcmp((*tmp)->key, key) == 0) return *tmp;
     tmp = &(*tmp)->next;
   }
   return NULL;
@@ -101,7 +101,14 @@ void ht_insert(ht_table_t *table, char *key, float value) {
  * Při implementaci využijte funkci ht_search.
  */
 float *ht_get(ht_table_t *table, char *key) {
-  return NULL;
+  if (table == NULL || key == NULL) return NULL;
+  
+  ht_item_t *foundItem = ht_search(table, key);
+  if (foundItem == NULL){
+    return NULL;
+  } else {
+    return &(foundItem->value);
+  }
 }
 
 /*
@@ -124,12 +131,12 @@ void ht_delete(ht_table_t *table, char *key) {
 
    while (*tmp != NULL && strcmp((*tmp)->key, key)) {
       tmp = &(*tmp)->next;
-      if (*tmp != NULL) {
-          delete = *tmp;
-      }
+      delete = *tmp;
+    
     } 
-    tmp = &(*tmp)->next;
+    *tmp = (*tmp)->next;
     free(delete);
+    delete = NULL;
   } else {
     return;
   }
@@ -146,9 +153,9 @@ void ht_delete_all(ht_table_t *table) {
   
   ht_item_t *tmp;
   ht_item_t *next;
-
   for (int i = 0; i < HT_SIZE; i++){
-    if ((tmp = (*table)[i]) != NULL){
+    tmp = (*table)[i];
+    if (tmp != NULL){
       do {
         next = tmp->next;
         free(tmp);

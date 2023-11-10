@@ -39,24 +39,24 @@ void bst_init(bst_node_t **tree) {
 bool bst_search(bst_node_t *tree, char key, int *value) { 
   bst_node_t **tmp = &tree;
   bool run = true;
-
+  printf("key: %c\n", key);
   while (run){
     if ((*tmp) == NULL){
       run = false;
       return false;
-    } else {
-      if ((*tmp)->key > key){
-        tmp = &(*tmp)->right;
-      } else if ((*tmp)->key < key){
-        tmp = &(*tmp)->left;
-      } else if ((*tmp)->key == key){
-        *value = (*tmp)->value;
-        run = false;
-        return true;
-      } else{
-        run = false;
-        return false;
-      }
+    }
+    if ((*tmp)->key == key){
+      *value = (*tmp)->value;
+      run = false;
+      return true;
+    }
+    if ((*tmp)->key > key){
+      *tmp = (*tmp)->left;
+    } else if ((*tmp)->key < key){
+      *tmp = (*tmp)->right;
+    } else{
+      run = false;
+      return false;
     }
   }
 
